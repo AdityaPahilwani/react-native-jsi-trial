@@ -9,7 +9,7 @@ void installJsiTrial(jsi::Runtime& jsiRuntime) {
   auto multiply = jsi::Function::createFromHostFunction(
       jsiRuntime,
       jsi::PropNameID::forAscii(jsiRuntime, "multiply"),
-      1,  // string
+      2,  
       [](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
         return example::multiply(arguments[0].asNumber(),arguments[1].asNumber());
       }

@@ -15,48 +15,74 @@ static jobject globalObjectRef;
 // global ref to our class
 static jclass globalClassRef;
 
-JNIEnv *attachCurrentThread()
-{
+JNIEnv *attachCurrentThread() {
     JavaVMAttachArgs args{JNI_VERSION_1_6, nullptr, nullptr};
     JNIEnv *env = nullptr;
     auto result = jvm->AttachCurrentThread(&env, &args);
     return env;
 }
 
-void install(facebook::jsi::Runtime &jsiRuntime)
-{
+void install(facebook::jsi::Runtime &jsiRuntime) {
     auto getDeviceInfo = Function::createFromHostFunction(jsiRuntime,
                                                           PropNameID::forAscii(jsiRuntime,
-                                                                               "getDeviceName"),
+                                                                               "getDeviceInfo"),
                                                           0,
                                                           [](Runtime &runtime,
                                                              const Value &thisValue,
                                                              const Value *arguments,
-                                                             size_t count) -> Value
-                                                          {
+                                                             size_t count) -> Value {
                                                               auto jniEnv = attachCurrentThread();
-                                                              jmethodID getDeviceInfo = jniEnv->GetStaticMethodID(globalClassRef, "getDeviceInfo", "()Ljava/lang/String;");
+                                                              jmethodID getDeviceInfo = jniEnv->GetStaticMethodID(
+                                                                      globalClassRef,
+                                                                      "getDeviceInfo",
+                                                                      "()Ljava/lang/String;");
                                                               jobject result = jniEnv->CallStaticObjectMethod(
-                                                                  globalClassRef, getDeviceInfo);
+                                                                      globalClassRef,
+                                                                      getDeviceInfo);
                                                               const char *str = jniEnv->GetStringUTFChars(
-                                                                  (jstring)result, NULL);
+                                                                      (jstring) result, NULL);
 
                                                               return Value(runtime,
                                                                            String::createFromUtf8(
-                                                                               runtime, str));
+                                                                                   runtime, str));
                                                           });
 
     jsiRuntime.global().setProperty(jsiRuntime, "getDeviceInfo", move(getDeviceInfo));
+
+    auto getJSIRandomUUID = Function::createFromHostFunction(jsiRuntime,
+                                                             PropNameID::forAscii(jsiRuntime,
+                                                                                  "getJSIRandomUUID"),
+                                                             0,
+                                                             [](Runtime &runtime,
+                                                                const Value &thisValue,
+                                                                const Value *arguments,
+                                                                size_t count) -> Value {
+                                                                 auto jniEnv = attachCurrentThread();
+                                                                 jmethodID getJSIRandomUUID = jniEnv->GetStaticMethodID(
+                                                                         globalClassRef,
+                                                                         "getJSIRandomUUID",
+                                                                         "()Ljava/lang/String;");
+                                                                 jobject result = jniEnv->CallStaticObjectMethod(
+                                                                         globalClassRef,
+                                                                         getJSIRandomUUID);
+                                                                 const char *str = jniEnv->GetStringUTFChars(
+                                                                         (jstring) result, NULL);
+
+                                                                 return Value(runtime,
+                                                                              String::createFromUtf8(
+                                                                                      runtime,
+                                                                                      str));
+                                                             });
+
+    jsiRuntime.global().setProperty(jsiRuntime, "getJSIRandomUUID", move(getJSIRandomUUID));
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_reactnativejsitrial_JsiTrialModule_initialize(JNIEnv *env, jobject thiz, jlong jsi)
-{
+Java_com_reactnativejsitrial_JsiTrialModule_initialize(JNIEnv *env, jobject thiz, jlong jsi) {
 
     auto runtime = reinterpret_cast<facebook::jsi::Runtime *>(jsi);
 
-    if (runtime)
-    {
+    if (runtime) {
         installJsiTrial(*runtime);
         install(*runtime);
     }
@@ -67,5 +93,5 @@ Java_com_reactnativejsitrial_JsiTrialModule_initialize(JNIEnv *env, jobject thiz
 
     auto clazz = env->FindClass("com/reactnativejsitrial/JsiTrialModule");
 
-    globalClassRef = (jclass)env->NewGlobalRef(clazz);
+    globalClassRef = (jclass) env->NewGlobalRef(clazz);
 }

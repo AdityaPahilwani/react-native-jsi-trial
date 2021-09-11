@@ -23,5 +23,10 @@ react-native bundle --platform android --dev false --entry-file index.js --bundl
 ```js
 import { JsiTrial } from 'react-native-jsi-trial';
 const result = JsiTrial.multiply(69,56);
+const deviceInfo=JsiTrial.getDeviceInfo()
+const jsiUUID = JsiTrial.getJSIRandomUUID();
+JsiTrial.getNativeRandomUUID((uuid) => {
+        console.log(uuid);
+});
 ```
 

@@ -3,11 +3,12 @@ package com.reactnativejsitrial;
 import androidx.annotation.NonNull;
 
 import android.os.Build;
-
+import java.util.UUID;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.Callback;
 import com.facebook.react.module.annotations.ReactModule;
 
 import java.net.InetAddress;
@@ -28,6 +29,17 @@ public class JsiTrialModule extends ReactContextBaseJavaModule {
 
   public JsiTrialModule(ReactApplicationContext reactContext) {
     super(reactContext);
+  }
+
+  @ReactMethod
+  public void getNativeRandomUUID(Callback callback) {
+    String uuid = UUID.randomUUID().toString();
+    callback.invoke(uuid);
+  }
+
+  public static String getJSIRandomUUID() {
+    String uuid = UUID.randomUUID().toString();
+    return uuid;
   }
 
   public static String getDeviceInfo() {
